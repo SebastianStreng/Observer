@@ -1,0 +1,60 @@
+class Observer(object):
+    def __init__(self, name, index, function):
+        self.name = name
+        self.index = index
+        self.function = function
+
+
+class Event(object):
+
+    _observers = {}
+
+    def __init__(self, subject):
+        self.subject = subject
+
+    @classmethod
+    def register(cls, observer):
+        if observer not in cls._observers:
+            cls._observers[observer.name] = observer
+
+    # @classmethod
+    # def unregister(cls, observer):
+    #     if observer in cls._observers:
+    #         cls._observers.pop(observer)
+
+    @classmethod
+    def unregister_by_id(cls, id):
+        for observer in cls._observers:
+            if observer.index == id:
+                cls._observers.pop(observer)
+
+    @classmethod
+    def notify(cls, subject):
+        event = cls(subject)
+        for key, observer in cls._observers.items():
+            observer.function(event)
+
+            print (key, observer.index)
+
+
+class WriteEvent(Event):
+    def __repr__(self):
+     return ('WriteEvent')
+
+
+def log(event):
+    print('%s was written' % event.subject)
+
+
+class AnotherObserver(object):
+    def __call__(self, event):
+        print('Yeah %s told me !' % event)
+
+
+def main():
+    WriteEvent.register(Observer("max", 23, log))
+    WriteEvent.register(Observer("peter",24, AnotherObserver()))
+    WriteEvent.notify('a given file')
+
+if __name__ == "__main__":
+    main()
